@@ -1089,7 +1089,7 @@ void CGNSIO::write (const std::string& filename)
   {
     // open CGNS file for write
 #if CGNS_VERSION >= 3310
-	genius_assert(!cg_open(filename.c_str(), CG_MODE_READ, &fn));
+	genius_assert(!cg_open(filename.c_str(), CG_MODE_WRITE, &fn));
 #else
     genius_assert(!cg_open(filename.c_str(), MODE_WRITE, &fn));
 #endif

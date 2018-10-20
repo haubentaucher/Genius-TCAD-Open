@@ -38,6 +38,7 @@ def options(opt):
   opt.add_option('--cc-opt', action='store', default=None, dest='cc_opt', help='CC optimization options. [default: autodetect]')
   opt.add_option('--debug', action='store_true', default=False, dest='debug', help='Enable debug')
   opt.add_option('--profile', action='store_true', default=False, dest='profile', help='Enable profile')
+  opt.add_option('--openmp', action='store_true', default=False, dest='openmp', help='Enable OpenMP')
   opt.add_option('--with-netgen-dir', action='store', default=None, dest='netgen_dir', help='Directory to Netgen.')
   opt.add_option('--with-cgns-dir', action='store', default=None, dest='cgns_dir', help='Directory to CGNS.')
   opt.add_option('--with-vtk-dir', action='store', default=None, dest='vtk_dir', help='Directory to VTK.')
@@ -497,6 +498,33 @@ END PROGRAM  TEST
     test_profile()
   else:
     test_optimize()
+
+  # {{{ openmp()
+  def test_openmp():
+    if ((platform=='Linux')|(platform=='Darwin')):
+      if conf.env['COMPILER_CC'] in ['gcc', 'icc']:
+        conf.start_msg('Detecting OpenMP options')
+        mpcopt='-fopenmp'
+        mplopt='-fopenmp'
+        conf.check_cc(cflags='-fopenmp', msg='Checking for OpenMP support')
+        conf.end_msg(mpcopt)
+        conf.env.append_value('CFLAGS', mpcopt.split())
+        conf.env.append_value('CXXFLAGS', mpcopt.split())
+        conf.env.append_value('LINKFLAGS', mplopt.split())
+    #elif platform=='Windows':
+    #  if conf.env['COMPILER_CC'] in ['msvc', 'icc']:
+    #    conf.check_cc(cflags='/Zi', msg='Checking for profiling support')
+    #    conf.env.append_value('CFLAGS', '/Zi')
+    #    conf.env.append_value('CXXFLAGS', '/Zi')
+    #elif platform=='AIX':
+    #  if conf.env['COMPILER_CC'] in ['xlc']:
+    #    conf.check_cc(cflags='-g', msg='Checking for profiling support')
+    #    conf.env.append_value('CFLAGS', '-g')
+    #    conf.env.append_value('CXXFLAGS', '-g')
+  # }}}
+
+  if conf.options.openmp:
+    test_openmp()
 
   # {{{ check types
   def check_types(type,name=None):
