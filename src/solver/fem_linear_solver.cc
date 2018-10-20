@@ -156,7 +156,11 @@ void FEM_LinearSolver::clear_linear_data()
   // clear petsc options
   std::map<std::string, std::string>::const_iterator it = petsc_options.begin();
   for(; it != petsc_options.end(); ++it)
-    PetscOptionsClearValue(it->first.c_str());
+#if PETSC_VERSION_GE(3,7,0)
+    PetscOptionsClearValue(PETSC_NULL, it->first.c_str());
+#else
+  PetscOptionsClearValue(it->first.c_str());
+#endif
 }
 
 
@@ -717,11 +721,19 @@ int FEM_LinearSolver::set_petsc_option(const std::string &key, const std::string
 
   // if the option has been set in command line
   PetscBool  set;
+#if PETSC_VERSION_GE(3,7,0)
+  PetscOptionsHasName(PETSC_NULL, NULL, ukey.c_str(), &set);
+#else
   PetscOptionsHasName(NULL, ukey.c_str(), &set);
+#endif
   if(set) return 0;
 
   // set the option
   petsc_options[ukey] = value;
+#if PETSC_VERSION_GE(3,7,0)
+  return PetscOptionsSetValue(PETSC_NULL, ukey.c_str(), value.c_str());
+#else
   return PetscOptionsSetValue(ukey.c_str(), value.c_str());
+#endif
 }
 

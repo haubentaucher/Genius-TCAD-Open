@@ -375,6 +375,8 @@ END PROGRAM  TEST
 
         oopts = ['-O2 -unroll -axSSE4.2,SSE4.1,SSSE3 -msse3',
                  '-O2 -unroll -axS -msse3',
+                 '-march=core2 -mtune=core2 -m64 -mssse3 -mfpmath=sse+387 -O3',
+                 '-O3 -funroll-loops -msse3',
                  '-O2 -unroll -msse3',
                  '-O2']
         if conf.options.cc_opt:
@@ -587,7 +589,7 @@ stringstream message; message << "Hello"; return 0;
 
     petsc_release = True
     try:
-      petsc_ver=Utils.readf(os.path.join(base_dir, 'include', 'petscversion.h'))
+      petsc_ver=Utils.readf(os.path.join(arch_dir, 'include', 'petscversion.h'))
 
       vers=[]
       for s in 'MAJOR MINOR SUBMINOR'.split():
@@ -597,11 +599,20 @@ stringstream message; message << "Hello"; return 0;
 
       m = re.search('#define\s+PETSC_VERSION_RELEASE'+'\s+(\d+)', petsc_ver)
       if m: petsc_release = (m.group(1) == 1)
+      m = re.search('#define\s+PETSC_VERSION_MINOR'+'\s+(\d+)', petsc_ver)
+      if m: petsc_minor = (m.group(1))
+      m = re.search('#define\s+PETSC_VERSION_MAJOR'+'\s+(\d+)', petsc_ver)
+      if m: petsc_major = (m.group(1))
     except:
       conf.fatal('Could not find petscversion.h, or it can not be parsed.')
     print 'Using Petsc version %s' % version
 
-    petsc_vars=Utils.str_to_dict(Utils.readf(os.path.join(arch_dir, 'conf/petscvariables')))
+    if (petsc_major == '3')&(petsc_minor > '5'):
+      petsc_vars=Utils.str_to_dict(Utils.readf(os.path.join(arch_dir, 'lib/petsc/conf/petscvariables')))      
+    elif (petsc_major>'3'):
+      petsc_vars=Utils.str_to_dict(Utils.readf(os.path.join(arch_dir, 'lib/petsc/conf/petscvariables')))
+    else:
+      petsc_vars=Utils.str_to_dict(Utils.readf(os.path.join(arch_dir, 'conf/petscvariables')))
 
     for v in ['PACKAGES_INCLUDES', 'PETSC_CC_INCLUDES']:
       if not petsc_vars.has_key(v): continue

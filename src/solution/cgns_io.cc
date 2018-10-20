@@ -66,7 +66,11 @@ void CGNSIO::read (const std::string& filename)
   if( Genius::processor_id() == 0)
   {
     // open CGNS file for read
+#if CGNS_VERSION >= 3310
+	genius_assert(!cg_open(filename.c_str(), CG_MODE_READ, &fn));
+#else
     genius_assert(!cg_open(filename.c_str(), MODE_READ, &fn));
+#endif
 
     // get the base number
     genius_assert(!cg_nbases(fn, &B));
@@ -1084,7 +1088,11 @@ void CGNSIO::write (const std::string& filename)
   if( Genius::processor_id() == 0)
   {
     // open CGNS file for write
+#if CGNS_VERSION >= 3310
+	genius_assert(!cg_open(filename.c_str(), CG_MODE_READ, &fn));
+#else
     genius_assert(!cg_open(filename.c_str(), MODE_WRITE, &fn));
+#endif
 
     // create base of three dimensional mesh, here mesh takes its magic number as postfix
     std::stringstream   ss;
