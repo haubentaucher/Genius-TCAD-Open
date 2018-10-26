@@ -496,7 +496,7 @@ void FVM_LinearSolver::set_petsc_linear_solver_type()
             break;
 
           case SolverSpecify::UMFPACK :
-#ifdef PETSC_HAVE_UMFPACK
+#ifdef PETSC_HAVE_SUITESPARSE
             MESSAGE<< "Using UMFPACK linear solver..."<<std::endl;
             RECORD();
             ierr = PCFactorSetMatSolverPackage (pc, "umfpack"); genius_assert(!ierr);
